@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Plate Quest</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="logo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
+    <link rel="shortcut icon" href="logo.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            color: #2c3e50;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 80px; /* Space for footer */
+        }
+
+        /* Grid Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Blue Blur Gradient Circles */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.1) 15%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.08) 20%, transparent 50%),
+                radial-gradient(circle at 60% 80%, rgba(59, 130, 246, 0.12) 25%, transparent 60%),
+                radial-gradient(circle at 10% 70%, rgba(59, 130, 246, 0.06) 18%, transparent 45%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 80px);
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .description {
+            font-size: 0.95rem;
+            color: #495057;
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+
+        .menu-buttons {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .menu-buttons.active {
+            display: flex;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            min-width: 140px;
+            font-family: 'Rubik', sans-serif;
+            background: rgba(255, 255, 255, 0.8);
+            color: #495057;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #adb5bd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-start {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: #6c757d;
+            color: #2c3e50;
+        }
+
+        .btn-start:hover {
+            background: #f8f9fa;
+            border-color: #495057;
+        }
+
+        .btn-learn {
+            background: rgba(248, 249, 250, 0.8);
+            border-color: #adb5bd;
+            color: #495057;
+        }
+
+        .btn-learn:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #6c757d;
+        }
+
+        .section {
+            display: none;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(108, 117, 125, 0.2);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .btn-back {
+            background: rgba(248, 249, 250, 0.8);
+            color: #6c757d;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-family: 'Rubik', sans-serif;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #adb5bd;
+            transform: translateY(-1px);
+        }
+
+        .learn-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .category-section {
+            background: rgba(248, 249, 250, 0.5);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .category-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding: 8px 0;
+            text-align: center;
+            border-bottom: 1px solid rgba(108, 117, 125, 0.2);
+        }
+
+        .states-grid {
+            width: 100%;
+        }
+
+        .state-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(222, 226, 230, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        .state-row:hover {
+            background: rgba(248, 249, 250, 0.8);
+        }
+
+        .state-row:last-child {
+            border-bottom: none;
+        }
+
+        .state-info {
+            flex: 1;
+        }
+
+        .state-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 2px;
+        }
+
+        .state-capital {
+            font-size: 0.75rem;
+            color: #dc3545;
+            font-weight: 400;
+        }
+
+        .plate-code {
+            background: rgba(248, 249, 250, 0.9);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #495057;
+            border: 1px solid rgba(222, 226, 230, 0.7);
+            min-width: 45px;
+            text-align: center;
+        }
+
+        /* Game Section - Condensed */
+        #game {
+            max-width: 600px;
+            padding: 30px;
+        }
+
+        .game-area {
+            text-align: center;
+        }
+
+        .game-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .score {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            background: rgba(248, 249, 250, 0.8);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(222, 226, 230, 0.5);
+        }
+
+        .timer {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #dc3545;
+            background: rgba(248, 249, 250, 0.8);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(222, 226, 230, 0.5);
+        }
+
+        .plate-image {
+            width: 100%;
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: block;
+        }
+
+        .plate-text {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-area {
+            margin: 20px 0;
+        }
+
+        .guess-input {
+            font-size: 1rem;
+            padding: 12px 16px;
+            border: 2px solid rgba(222, 226, 230, 0.7);
+            border-radius: 8px;
+            width: 300px;
+            max-width: 90%;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-family: 'Rubik', sans-serif;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            color: #2c3e50;
+        }
+
+        .guess-input::placeholder {
+            color: rgba(108, 117, 125, 0.6);
+        }
+
+        .guess-input:focus {
+            outline: none;
+            border-color: rgba(108, 117, 125, 0.5);
+            box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .guess-input:disabled {
+            background: rgba(248, 249, 250, 0.6);
+            color: rgba(108, 117, 125, 0.5);
+            cursor: not-allowed;
+            border-color: rgba(222, 226, 230, 0.4);
+        }
+
+        .btn-submit {
+            background: rgba(248, 249, 250, 0.9);
+            color: #495057;
+            border-color: rgba(173, 181, 189, 0.7);
+            margin: 0 10px;
+        }
+
+        .btn-submit:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(108, 117, 125, 0.7);
+        }
+
+        .btn-submit:disabled {
+            background: rgba(248, 249, 250, 0.6);
+            color: rgba(108, 117, 125, 0.5);
+            cursor: not-allowed;
+            border-color: rgba(222, 226, 230, 0.4);
+            transform: none;
+        }
+
+        .btn-submit:disabled:hover {
+            background: rgba(248, 249, 250, 0.6);
+            color: rgba(108, 117, 125, 0.5);
+            border-color: rgba(222, 226, 230, 0.4);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result {
+            margin: 20px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            min-height: 25px;
+        }
+
+        .correct {
+            color: #28a745;
+        }
+
+        .incorrect {
+            color: #dc3545;
+        }
+
+        .close {
+            color: #ffc107;
+        }
+
+        #gameOver {
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(222, 226, 230, 0.5);
+        }
+
+        #gameOver h3 {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        #gameOver p {
+            font-size: 1rem;
+            color: #495057;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* Footer - Fixed at bottom center */
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .footer a {
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 20px;
+            border: 1px solid rgba(222, 226, 230, 0.5);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .footer a:hover {
+            color: #495057;
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .title {
+                font-size: 2.2rem;
+            }
+            
+            .menu-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .guess-input {
+                width: 260px;
+            }
+            
+            .plate-text {
+                font-size: 1.8rem;
+                letter-spacing: 2px;
+            }
+            
+            .section {
+                padding: 25px 20px;
+            }
+
+            .learn-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .game-top {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .state-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 16px 20px;
+            }
+            
+            .plate-code {
+                align-self: flex-end;
+            }
+            
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">Number Plate Quest: Indian Edition</h1>
+            <h2 class="subtitle">Can You Match Every Indian Number Plate to Its State?</h2>
+            <p class="description">
+                India's vehicle plates carry unique alphabetic codes for each of its 28 states and 8 union territories.
+                Test your knowledge of these codes with our fun, interactive quiz game!
+            </p>
+        </div>
+
+        <!-- Main Menu -->
+        <div id="menu" class="menu-buttons active">
+            <button class="btn btn-start" onclick="startGame()">Start Game</button>
+            <button class="btn btn-learn" onclick="showLearn()">Learn</button>
+        </div>
+
+        <!-- Learn Section -->
+        <div id="learn" class="section">
+            <div class="section-header">
+                <h2 class="section-title">States and Union Territories</h2>
+                <button class="btn-back" onclick="showMenu()">← Back to Menu</button>
+            </div>
+            
+            <div class="learn-content">
+                <div class="category-section">
+                    <div class="category-header">States</div>
+                    <div class="states-grid" id="statesGrid"></div>
+                </div>
+                
+                <div class="category-section">
+                    <div class="category-header">Union Territories</div>
+                    <div class="states-grid" id="utsGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Section -->
+        <div id="game" class="section">
+            <div class="section-header">
+                <h2 class="section-title">Guess the State/UT</h2>
+                <button class="btn-back" onclick="showMenu()">← Back to Menu</button>
+            </div>
+            
+            <div class="game-area">
+                <div class="game-top">
+                    <div class="score">Score: <span id="score">0</span> / <span id="total">36</span></div>
+                    <div class="timer">Time: <span id="timeLeft">10</span>s</div>
+                </div>
+                
+                <div class="plate-display">
+                    <img id="plateImage" class="plate-image" src="" alt="Number Plate" style="display: none;">
+                    <div class="plate-text" id="plateCode">Loading...</div>
+                </div>
+                
+                <div class="input-area">
+                    <input type="text" id="guessInput" class="guess-input" placeholder="Enter State/UT Name" maxlength="50">
+                    <br>
+                    <button class="btn btn-submit" onclick="submitGuess()">Submit Answer</button>
+                </div>
+                
+                <div id="result" class="result"></div>
+                <div id="gameOver" style="display: none;">
+                    <h3>Game Over!</h3>
+                    <p>Final Score: <span id="finalScore"></span></p>
+                    <button class="btn btn-start" onclick="restartGame()">Play Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <a href="https://alvinsonny.netlify.app" target="_blank">alvinunleashed.me</a>
+    </div>
+
+    <script>
+        const statesData = [
+            { name: "ANDHRA PRADESH", capital: "Amaravati", code: "AP" },
+            { name: "ARUNACHAL PRADESH", capital: "Itanagar", code: "AR" },
+            { name: "ASSAM", capital: "Dispur", code: "AS" },
+            { name: "BIHAR", capital: "Patna", code: "BR" },
+            { name: "CHHATTISGARH", capital: "Raipur", code: "CG" },
+            { name: "GOA", capital: "Panaji", code: "GA" },
+            { name: "GUJARAT", capital: "Gandhinagar", code: "GJ" },
+            { name: "HARYANA", capital: "Chandigarh", code: "HR" },
+            { name: "HIMACHAL PRADESH", capital: "Shimla", code: "HP" },
+            { name: "JHARKHAND", capital: "Ranchi", code: "JH" },
+            { name: "KARNATAKA", capital: "Bengaluru", code: "KA" },
+            { name: "KERALA", capital: "Thiruvananthapuram", code: "KL" },
+            { name: "MADHYA PRADESH", capital: "Bhopal", code: "MP" },
+            { name: "MAHARASHTRA", capital: "Mumbai", code: "MH" },
+            { name: "MANIPUR", capital: "Imphal", code: "MN" },
+            { name: "MEGHALAYA", capital: "Shillong", code: "ML" },
+            { name: "MIZORAM", capital: "Aizawl", code: "MZ" },
+            { name: "NAGALAND", capital: "Kohima", code: "NL" },
+            { name: "ODISHA", capital: "Bhubaneswar", code: "OD" },
+            { name: "PUNJAB", capital: "Chandigarh", code: "PB" },
+            { name: "RAJASTHAN", capital: "Jaipur", code: "RJ" },
+            { name: "SIKKIM", capital: "Gangtok", code: "SK" },
+            { name: "TAMIL NADU", capital: "Chennai", code: "TN" },
+            { name: "TELANGANA", capital: "Hyderabad", code: "TS" },
+            { name: "TRIPURA", capital: "Agartala", code: "TR" },
+            { name: "UTTAR PRADESH", capital: "Lucknow", code: "UP" },
+            { name: "UTTARAKHAND", capital: "Dehradun", code: "UK" },
+            { name: "WEST BENGAL", capital: "Kolkata", code: "WB" }
+        ];
+
+        const utsData = [
+            { name: "ANDAMAN AND NICOBAR ISLANDS", capital: "Port Blair", code: "AN" },
+            { name: "CHANDIGARH", capital: "Chandigarh", code: "CH" },
+            { name: "DAMAN AND DIU", capital: "Daman", code: "DD" },
+            { name: "DELHI", capital: "New Delhi", code: "DL" },
+            { name: "JAMMU AND KASHMIR", capital: "Srinagar", code: "JK" },
+            { name: "LADAKH", capital: "Leh", code: "LA" },
+            { name: "LAKSHADWEEP", capital: "Kavaratti", code: "LD" },
+            { name: "PUDUCHERRY", capital: "Puducherry", code: "PY" }
+        ];
+
+        let gameData = [];
+        let currentIndex = 0;
+        let score = 0;
+        let isGameActive = false;
+        let attemptCount = 0;
+        let timeLeft = 10;
+        let timerInterval;
+
+        // Levenshtein distance function to calculate spelling differences
+        function levenshteinDistance(str1, str2) {
+            const matrix = [];
+            
+            for (let i = 0; i <= str2.length; i++) {
+                matrix[i] = [i];
+            }
+            
+            for (let j = 0; j <= str1.length; j++) {
+                matrix[0][j] = j;
+            }
+            
+            for (let i = 1; i <= str2.length; i++) {
+                for (let j = 1; j <= str1.length; j++) {
+                    if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1, // substitution
+                            matrix[i][j - 1] + 1,     // insertion
+                            matrix[i - 1][j] + 1      // deletion
+                        );
+                    }
+                }
+            }
+            
+            return matrix[str2.length][str1.length];
+        }
+
+        function startTimer() {
+            timeLeft = 10;
+            document.getElementById('timeLeft').textContent = timeLeft;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timeLeft').textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        function timeUp() {
+            const currentData = gameData[currentIndex];
+            document.getElementById('result').innerHTML = 
+                `<span class="incorrect">⏰ Time's up! The correct answer was: ${currentData.name}</span>`;
+            setTimeout(() => {
+                endGame(false);
+            }, 2000);
+        }
+
+        function showMenu() {
+            document.getElementById('menu').classList.add('active');
+            document.getElementById('learn').classList.remove('active');
+            document.getElementById('game').classList.remove('active');
+            clearInterval(timerInterval);
+        }
+
+        function showLearn() {
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('learn').classList.add('active');
+            document.getElementById('game').classList.remove('active');
+            populateLearnSection();
+            clearInterval(timerInterval);
+        }
+
+        function populateLearnSection() {
+            const statesGrid = document.getElementById('statesGrid');
+            const utsGrid = document.getElementById('utsGrid');
+            
+            statesGrid.innerHTML = '';
+            utsGrid.innerHTML = '';
+
+            statesData.forEach(state => {
+                const row = createStateRow(state);
+                statesGrid.appendChild(row);
+            });
+
+            utsData.forEach(ut => {
+                const row = createStateRow(ut);
+                utsGrid.appendChild(row);
+            });
+        }
+
+        function createStateRow(data) {
+            const row = document.createElement('div');
+            row.className = 'state-row';
+            row.innerHTML = `
+                <div class="state-info">
+                    <div class="state-name">${data.name}</div>
+                    <div class="state-capital">(${data.capital})</div>
+                </div>
+                <div class="plate-code">${data.code}</div>
+            `;
+            return row;
+        }
+
+        function startGame() {
+            document.getElementById('menu').classList.remove('active');
+            document.getElementById('learn').classList.remove('active');
+            document.getElementById('game').classList.add('active');
+            initializeGame();
+        }
+
+        function initializeGame() {
+            gameData = [...statesData, ...utsData];
+            shuffleArray(gameData);
+            currentIndex = 0;
+            score = 0;
+            isGameActive = true;
+            attemptCount = 0;
+            
+            document.getElementById('score').textContent = score;
+            document.getElementById('total').textContent = gameData.length;
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('result').textContent = '';
+            
+            showNextQuestion();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function showNextQuestion() {
+            if (currentIndex >= gameData.length) {
+                endGame(true);
+                return;
+            }
+
+            const currentData = gameData[currentIndex];
+            const plateImage = document.getElementById('plateImage');
+            const plateCode = document.getElementById('plateCode');
+            
+            // Try to load the plate image
+            plateImage.src = `plates/${currentData.code}.jpg`;
+            plateImage.onload = function() {
+                plateImage.style.display = 'block';
+                plateCode.style.display = 'none';
+            };
+            plateImage.onerror = function() {
+                plateImage.style.display = 'none';
+                plateCode.style.display = 'block';
+                plateCode.textContent = currentData.code;
+            };
+            
+            document.getElementById('guessInput').value = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('guessInput').focus();
+            attemptCount = 0;
+            startTimer();
+        }
+
+        function submitGuess() {
+            if (!isGameActive) return;
+
+            clearInterval(timerInterval);
+            const guess = document.getElementById('guessInput').value.trim().toUpperCase();
+            const currentData = gameData[currentIndex];
+            const correctAnswer = currentData.name.toUpperCase();
+
+            if (guess === correctAnswer) {
+                score++;
+                document.getElementById('score').textContent = score;
+                document.getElementById('result').innerHTML = 
+                    `<span class="correct">✅ ${currentData.name}</span>`;
+                
+                setTimeout(() => {
+                    currentIndex++;
+                    showNextQuestion();
+                }, 1500);
+            } else {
+                // Check if the guess is close (1-3 letter difference)
+                const distance = levenshteinDistance(guess, correctAnswer);
+                
+                if (distance >= 1 && distance <= 3 && attemptCount < 2) {
+                    attemptCount++;
+                    document.getElementById('result').innerHTML = 
+                        `<span class="close">You're Close! Is that the right spelling?</span>`;
+                    document.getElementById('guessInput').focus();
+                    startTimer(); // Restart timer for retry
+                } else {
+                    document.getElementById('result').innerHTML = 
+                        `<span class="incorrect">❌ Wrong! It was: ${currentData.name}</span>`;
+                    setTimeout(() => {
+                        endGame(false);
+                    }, 2000);
+                }
+            }
+        }
+
+        function endGame(completed) {
+            isGameActive = false;
+            clearInterval(timerInterval);
+            
+            // Disable input and submit button
+            document.getElementById('guessInput').disabled = true;
+            document.getElementById('guessInput').placeholder = "Game Over";
+            document.querySelector('.btn-submit').disabled = true;
+            
+            document.getElementById('finalScore').textContent = score + ' / ' + gameData.length;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        function restartGame() {
+            // Re-enable input and submit button
+            document.getElementById('guessInput').disabled = false;
+            document.getElementById('guessInput').placeholder = "Enter State/UT Name";
+            document.querySelector('.btn-submit').disabled = false;
+            
+            initializeGame();
+        }
+
+        // Enter key support
+        document.getElementById('guessInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitGuess();
+            }
+        });
+
+        // Auto uppercase input
+        document.getElementById('guessInput').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    </script>
+</body>
+</html>
